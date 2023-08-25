@@ -10,17 +10,16 @@ knitr::opts_chunk$set(echo = TRUE)
 ```
 Set libraries and Install first MOUT client
 
-```{r}
-
-system("pip install motuclient==1.8.4")
+```{r eval=FALSE}
+#system("pip install motuclient==1.8.4")
 install.packages("CopernicusMarine")
 library(CopernicusMarine)
 library(here)
 ```
 
-Set credentials in Copernicus Data
+Set credentials in Copernicus Data. 
 
-```{r}
+```{r echo=FALSE}
 CopernicusMarine_uid = "mmardones"           #ID
 CopernicusMarine_pwd = "Trekkero_1"  #password
 ```
@@ -31,22 +30,29 @@ Set dir data sink
 dir1 <- here("Data")
 ```
 
-
-
 Check data available in the main repo from [Copernicus](https://data.marine.copernicus.eu/products)
 
 Then, select source data to analysis and puta that name in the next line;
+
 ```{r}
-list1<-copernicus_products_list(freeText = "GLOBAL_ANALYSISFORECAST_PHY_001_024")    #available data
+list1<-copernicus_products_list(freeText = "MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012")  
+detail1<-copernicus_product_details("MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012")
+```
+
+Details for selecting subvariables 
+
+```{r}
+list1$mainVariables
+list1$vertLevels
+
+detail1$layers$`dataset-armor-3d-nrt-monthly/to`$subsetVariableIds
+
+
+
 ```
 
 
 ```{r}
-detail1<-copernicus_product_details("GLOBAL_ANALYSISFORECAST_PHY_001_024") # details for selecting subvariables 
-
-list1$mainVariables
-list1$vertLevels
-
 #cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- sea ice per month 'siconc'
 #cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- ocean mixed layer thickness 'mlotst'
 
@@ -56,7 +62,6 @@ detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/thetao`$variableTitle # surface
 
 
 list2<-copernicus_products_list(freeText = "GLOBAL_MULTIYEAR_BGC_001_029")    #available data
-
 detail2<-copernicus_product_details("GLOBAL_MULTIYEAR_BGC_001_029") # details for selecting subvariables 
 
 list2$mainVariables
@@ -75,8 +80,6 @@ list3$vertLevels
 #cmems_mod_obs_wind_glo_phy_nrt_l4_0.125deg_PT1H202207 <- wind speed (m/s) per month 'wind'
 
 
-
-
 CopernicusID = "mmardones"           #ID
 CopernicusPass = "Trekkero_1"  #password
 
@@ -93,13 +96,13 @@ copernicus_download_motu(
   username = "mmardones",
   password = "Trekkero_1",
   destination = dir1,
-  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
-  layer = "cmems_mod_glo_bgc_my_0.25_P1M-m/chl", # "Mass concentration of chlorophyll a in sea water"
-  variable = "Plankton",
+  product = "MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012" ,
+  layer = "dataset-armor-3d-nrt-monthly/to", # "Mass concentration of chlorophyll a in sea water"
+  variable = "Sea water temperature",
   output = "netcdf",
   region = c(-85, -75, -30, -55), # vertices from giant petrel data
   timerange = c("1993-01-01 12:00:00","2010-03-30 12:00:00"),
-  sub_variables = c("chl"),
+  sub_variables = c("to"),
   verticalrange = c(0, 50)
 )
 ```
@@ -118,7 +121,7 @@ copernicus_download_motu(
   variable = "Mass concentration of chloropyll a in sea water",
   output = "netcdf",
   region = c(-85, -75, -30, -55), # vertices from giant petrel data
-  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  timerange = c("2000-01-01 12:00:00","2023-03-30 12:00:00"),
   sub_variables = c("chl"),
   verticalrange = c(0, 100)
 )
@@ -132,12 +135,12 @@ copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
   destination = dir1,
-  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
-  layer = "cmems_mod_glo_bgc_my_0.25_P1M-m/chl", # "Mass concentration of chlorophyll a in sea water"
+  product = "GLOBAL_MULTIYEAR_BGC_001_029" ,
+  layer = "cmems_mod_glo_bgc_my_0.25_P1D-m/chl", # "Mass concentration of chlorophyll a in sea water"
   variable = "Plankton",
   output = "netcdf",
   region = c(-85, -75, -30, -55), # vertices from giant petrel data
-  timerange = c("1993-01-01 12:00:00","2010-03-30 12:00:00"),
+  timerange = c("1994-01-01 12:00:00","2020-03-30 12:00:00"),
   sub_variables = c("chl"),
   verticalrange = c(0, 50)
 )
@@ -147,5 +150,20 @@ copernicus_download_motu(
 # loading and processing the data
 
 
+```
+```{r}
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = dir1,
+  product = "IBI_ANALYSISFORECAST_PHY_005_001",
+  layer = "cmems_mod_ibi_phy_anfc_0.027deg-3D_P1D-m",
+  variable = "thetao",
+  output = "netcdf",
+  region = c(-15.26, 35.57, 5.04, 51.03),
+  timerange = c("2022-08-01 12:00:00","2022-08-01 12:00:00"),
+  sub_variables = c("uo", "vo"),
+  verticalrange = c(0.49, 11.4)
+)
 ```
 
