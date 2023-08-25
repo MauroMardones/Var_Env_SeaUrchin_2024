@@ -4,6 +4,19 @@ author: "Mauricio Mardones I."
 date: "2023-08-25"
 output: pdf_document
 ---
+## CONTEXT
+
+Copernicus Marine data are available to download through server access services, all with the possibility of being integrated into scripts.
+ 
+One of the most used endpoint is the MOTU API, by integrating the Python motuclient command line in a complete and operative script, regardless of the code language.
+ 
+Indeed, motuclient is a cross-platform package that enables to download data by running a Python script. It can be integrated as a simple command line of your system from the language of your choice. 
+
+Another method is to use the `CopernicusMarine` package developed to facilitate the retrieval of data from the Copernicus Marine catalog.
+ 
+Let's see in this article an example of script to run a download process and how to use the `CopernicusMarine` package in R. 
+ 
+## SETUP
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
@@ -30,25 +43,32 @@ Set dir data sink
 dir1 <- here("Data")
 ```
 
-Check data available in the main repo from [Copernicus](https://data.marine.copernicus.eu/products)
+
+Define geo-frame to get data
+
+We set limiit from X y XI region in Southern Chile
+
+```{r echo=T, eval=T}
+zona <- c(-75,-72,-46,-41)
+```
+Data available in the main repo from [Copernicus](https://data.marine.copernicus.eu/products)
+
+
+The OSTIA [@Good2020] global sea surface temperature reprocessed product provides daily gap-free maps of foundation sea surface temperature and ice concentration (referred to as an L4 product) at 0.05deg.x 0.05deg. horizontal grid resolution, using in-situ and satellite data. This product provides the foundation Sea Surface Temperature, which is the temperature free of diurnal variability.
 
 Then, select source data to analysis and puta that name in the next line;
 
 ```{r}
-list1<-copernicus_products_list(freeText = "MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012")  
-detail1<-copernicus_product_details("MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012")
+list1<-copernicus_products_list(freeText = "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011")  
+detail1<-copernicus_product_details("SST_GLO_SST_L4_REP_OBSERVATIONS_010_011")
 ```
 
 Details for selecting subvariables 
 
 ```{r}
 list1$mainVariables
-list1$vertLevels
-
-detail1$layers$`dataset-armor-3d-nrt-monthly/to`$subsetVariableIds
-
-
-
+list1$numLayers
+detail1$layers$`METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst`$subdatasetTitle
 ```
 
 
@@ -91,18 +111,17 @@ region=data.frame(min(out$Lon),min(out$Lat),max(out$lon),max(out$Lat)) #(xmin,ym
 
 
 ```{r}
-
 copernicus_download_motu(
   username = "mmardones",
   password = "Trekkero_1",
   destination = dir1,
-  product = "MULTIOBS_GLO_PHY_TSUV_3D_MYNRT_015_012" ,
-  layer = "dataset-armor-3d-nrt-monthly/to", # "Mass concentration of chlorophyll a in sea water"
-  variable = "Sea water temperature",
+  product = "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011" ,
+  layer = "METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst", # "Mass concentration of chlorophyll a in sea water"
+  variable = "Sea surface foundation temperature",
   output = "netcdf",
   region = c(-85, -75, -30, -55), # vertices from giant petrel data
   timerange = c("1993-01-01 12:00:00","2010-03-30 12:00:00"),
-  sub_variables = c("to"),
+  sub_variables = c("Global sst & sea ice analysis, l4 ostia, 0.05 deg daily (metoffice-glo-sst-l4-rep-obs-sst-v2)"),
   verticalrange = c(0, 50)
 )
 ```
@@ -111,7 +130,6 @@ copernicus_download_motu(
 ```{r}
 
 # chlorophyll-a cocnentration
-
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
@@ -125,18 +143,13 @@ copernicus_download_motu(
   sub_variables = c("chl"),
   verticalrange = c(0, 100)
 )
-
-
-
-
 #temperature
-
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
   destination = dir1,
   product = "GLOBAL_MULTIYEAR_BGC_001_029" ,
-  layer = "cmems_mod_glo_bgc_my_0.25_P1D-m/chl", # "Mass concentration of chlorophyll a in sea water"
+  layer = "cmems_mod_glo_bgc_my_0.25_P1D-m/chl", # "Mass conc of chla in sea"
   variable = "Plankton",
   output = "netcdf",
   region = c(-85, -75, -30, -55), # vertices from giant petrel data
