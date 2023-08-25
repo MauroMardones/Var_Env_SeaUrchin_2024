@@ -1,0 +1,160 @@
+---
+title: "Download_Env_Data"
+author: "Mauricio Mardones I."
+date: "2023-08-25"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+#system("pip install motuclient==1.8.4")
+
+#install.packages("CopernicusMarine")
+
+library(CopernicusMarine)
+
+list1<-copernicus_products_list(freeText = "GLOBAL_ANALYSISFORECAST_PHY_001_024")    #available data
+
+detail1<-copernicus_product_details("GLOBAL_ANALYSISFORECAST_PHY_001_024") # details for selecting subvariables 
+
+list1$mainVariables
+list1$vertLevels
+
+#cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- sea ice per month 'siconc'
+#cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- ocean mixed layer thickness 'mlotst'
+
+detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/mlotst`$variableTitle # mixed layer depth
+detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/siconc`$variableTitle # surface ice concentration
+detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/thetao`$variableTitle # surface temperature
+
+
+list2<-copernicus_products_list(freeText = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028")    #available data
+
+detail2<-copernicus_product_details("GLOBAL_ANALYSIS_FORECAST_BIO_001_028") # details for selecting subvariables 
+
+list2$mainVariables
+list2$vertLevels
+
+#global-analysis-forecast-bio-001-028-monthly <- chlorphyl concentration (mg/m3) per month 'chl'
+
+
+list3<-copernicus_products_list(freeText = "WIND_GLO_PHY_L4_NRT_012_004")    #available data
+
+detail3<-copernicus_product_details("WIND_GLO_PHY_L4_NRT_012_004") # details for selecting subvariables 
+
+list3$mainVariables
+list3$vertLevels
+
+#cmems_mod_obs_wind_glo_phy_nrt_l4_0.125deg_PT1H202207 <- wind speed (m/s) per month 'wind'
+
+
+
+
+CopernicusMarine_uid = "lkrger"           #ID
+CopernicusMarine_pwd = "1029MarineData!"  #password
+
+
+region=data.frame(min(out$Lon),min(out$Lat),max(out$lon),max(out$Lat)) #(xmin,ymin,xmax,ymax)
+
+# Set parameters to subset and run the download
+```
+
+
+```{r}
+# sea ice
+
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = "D:/SGP Tracking/Copernicus/SIC",
+  product = "GLOBAL_ANALYSISFORECAST_PHY_001_024" ,
+  layer = "cmems_mod_glo_phy_anfc_0.083deg_P1M-m",
+  variable = "Sea ice",
+  output = "netcdf",
+  region = region, # vertices from giant petrel data
+  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("siconc"),
+  verticalrange = c(0, 50)
+)
+
+
+# mixed layer depth
+
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = "D:/SGP Tracking/Copernicus/MLD",
+  product = "GLOBAL_ANALYSISFORECAST_PHY_001_024" ,
+  layer = "cmems_mod_glo_phy_anfc_0.083deg_P1M-m",
+  variable = "Sea ice area fraction",
+  output = "netcdf",
+  region = region, # vertices from giant petrel data
+  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("mlotst"),
+  verticalrange = c(0, 200)
+)
+
+
+
+# chlorophyll-a cocnentration
+
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = "D:/SGP Tracking/Copernicus/MLD",
+  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
+  layer = "global-analysis-forecast-bio-001-028-monthly",
+  variable = "Mass concentration of chloropyll a in sea water",
+  output = "netcdf",
+  region = region, # vertices from giant petrel data
+  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("chl"),
+  verticalrange = c(0, 100)
+)
+
+
+
+
+## wind speed
+
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = "D:/SGP Tracking/Copernicus/MLD",
+  product = "WIND_GLO_PHY_L4_NRT_012_004" ,
+  layer = "cmems_mod_obs_wind_glo_phy_nrt_l4_0.125deg_PT1H202207",
+  variable = "Wind",
+  output = "netcdf",
+  region = region, # vertices from giant petrel data
+  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("wind"),
+  verticalrange = c(0, 50)
+)
+
+
+#temperature
+
+copernicus_download_motu(
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
+  destination = "D:/SGP Tracking/Copernicus/MLD",
+  product = "GLOBAL_ANALYSISFORECAST_PHY_001_024" ,
+  layer = "cmems_mod_glo_phy_anfc_0.083deg_P1M-m",
+  variable = "Sea water potential temperature",
+  output = "netcdf",
+  region = region, # vertices from giant petrel data
+  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("thetao"),
+  verticalrange = c(0, 100)
+)
+
+### each file was downloaded as a nc with month as a dimension. 
+
+# loading and processing the data
+
+
+```
+
