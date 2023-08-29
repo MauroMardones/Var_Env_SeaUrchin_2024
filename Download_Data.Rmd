@@ -1,9 +1,18 @@
 ---
-title: "Download_Env_Data"
-author: "Mauricio Mardones I."
-date: "2023-08-25"
-output: pdf_document
+title: "Download Guide Environmental Data to Sea Urchin"
+subtitle: "Suplemtary analysis to Stock Assessment Sea Urchin 2024"
+author: "Mauricio Mardones"
+date:  "`r format(Sys.time(), '%d %B, %Y')`"
+bibliography: env_seaurchin.bib
+csl: apa.csl
+link-citations: yes
+linkcolor: blue
+output:
+  pdf_document:
+    toc: true
 ---
+\pagebreak
+
 ## CONTEXT
 
 Copernicus Marine data are available to download through server access services, all with the possibility of being integrated into scripts.
@@ -14,18 +23,23 @@ Indeed, motuclient is a cross-platform package that enables to download data by 
 
 Another method is to use the `CopernicusMarine` package developed to facilitate the retrieval of data from the Copernicus Marine catalog.
  
-Let's see in this article an example of script to run a download process and how to use the `CopernicusMarine` package in R. 
- 
+Let's see in this article an example of script to run a download process and how to use the `CopernicusMarine` package in R [@Good2020].
+
+\pagebreak
 ## SETUP
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
-Set libraries and Install first MOUT client
+Set libraries and Install first MOTU client
 
 ```{r eval=FALSE}
-#system("pip install motuclient==1.8.4")
+system("pip install motuclient==1.8.4")
 install.packages("CopernicusMarine")
+```
+
+
+```{r }
 library(CopernicusMarine)
 library(here)
 ```
@@ -68,39 +82,42 @@ Details for selecting subvariables
 ```{r}
 list1$mainVariables
 list1$numLayers
-detail1$layers$`METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst`$variableTitle
+detail1$layers$`METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst`$variableId
+
 ```
 
-```{r}
+```{r eval_FALSE}
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
   destination = dir1,
   product = "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011" ,
-  layer = "METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst", # "Mass concentration of chlorophyll a in sea water"
-  variable = "Sea surface foundation temperature",
+  layer = "METOFFICE-GLO-SST-L4-REP-OBS-SST",
+  variable = "Sea ice",
   output = "netcdf",
-  region = zona, # vertices from giant petrel data
-  timerange = c("1993-01-01 12:00:00","2010-03-30 12:00:00"),
-  sub_variables = "analysed_sst",
+  region = c(-85, -75, -30, -55), # (xmin,ymin,xmax,ymax)
+  timerange = c("2005-01-01 12:00:00","2020-12-31 12:00:00"),
+  sub_variables = c("analysed_sst"),
   verticalrange = c(0, 50)
 )
+
 ```
 
-```{r}
-# sea ice
+```{r eval=FALSE}
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
-  destination = dir1,
-  product = "GLOBAL_MULTIYEAR_PHY_001_030" ,
-  layer = "cmems_mod_glo_phy_my_0.083_P1M-m",
-  variable = "Sea ice",
+  destination = "~/IFOP/Erizo_SA/Var_Env_SeaUrchin_2024/Data/FILENAME.nc",
+  product = "IBI_ANALYSISFORECAST_PHY_005_001",
+  layer = "cmems_mod_ibi_phy_anfc_0.027deg-3D_P1D-m",
+  variable = "thetao",
   output = "netcdf",
-  region = zona, # (xmin,ymin,xmax,ymax)
-  timerange = c("2005-01-01 12:00:00","2020-12-31 12:00:00"),
-  sub_variables = c("siconc"),
-  verticalrange = c(0, 50)
+  region = c(-15.26, 35.57, 5.04, 51.03),
+  timerange = c("2022-08-01 12:00:00","2022-08-01 12:00:00"),
+  sub_variables = c("uo", "vo"),
+  verticalrange = c(0.49, 11.4)
 )
 ```
+\pagebreak
+# REFERENCES
 
