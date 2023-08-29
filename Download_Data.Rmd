@@ -56,7 +56,7 @@ Data available in the main repo from [Copernicus](https://data.marine.copernicus
 
 The OSTIA [@Good2020] global sea surface temperature reprocessed product provides daily gap-free maps of foundation sea surface temperature and ice concentration (referred to as an L4 product) at 0.05deg.x 0.05deg. horizontal grid resolution, using in-situ and satellite data. This product provides the foundation Sea Surface Temperature, which is the temperature free of diurnal variability.
 
-Then, select source data to analysis and puta that name in the next line;
+Then, select source data to analysis and put that name in the next line;
 
 ```{r}
 list1<-copernicus_products_list(freeText = "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011")  
@@ -68,115 +68,39 @@ Details for selecting subvariables
 ```{r}
 list1$mainVariables
 list1$numLayers
-detail1$layers$`METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst`$subdatasetTitle
+detail1$layers$`METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst`$variableTitle
 ```
-
-
-```{r}
-#cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- sea ice per month 'siconc'
-#cmems_mod_glo_phy_anfc_0.083deg_P1M-m <- ocean mixed layer thickness 'mlotst'
-
-detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/mlotst`$variableTitle # mixed layer depth
-detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/siconc`$variableTitle # surface ice concentration
-detail1$layers$`cmems_mod_glo_phy_my_0.083_P1M-m/thetao`$variableTitle # surface temperature
-
-
-list2<-copernicus_products_list(freeText = "GLOBAL_MULTIYEAR_BGC_001_029")    #available data
-detail2<-copernicus_product_details("GLOBAL_MULTIYEAR_BGC_001_029") # details for selecting subvariables 
-
-list2$mainVariables
-list2$vertLevels
-
-#global-analysis-forecast-bio-001-028-monthly <- chlorphyl concentration (mg/m3) per month 'chl'
-
-
-list3<-copernicus_products_list(freeText = "WIND_GLO_PHY_L4_NRT_012_004")    #available data
-
-detail3<-copernicus_product_details("WIND_GLO_PHY_L4_NRT_012_004") # details for selecting subvariables 
-
-list3$mainVariables
-list3$vertLevels
-
-#cmems_mod_obs_wind_glo_phy_nrt_l4_0.125deg_PT1H202207 <- wind speed (m/s) per month 'wind'
-
-
-CopernicusID = "mmardones"           #ID
-CopernicusPass = "Trekkero_1"  #password
-
-
-region=data.frame(min(out$Lon),min(out$Lat),max(out$lon),max(out$Lat)) #(xmin,ymin,xmax,ymax)
-
-# Set parameters to subset and run the download
-```
-
 
 ```{r}
 copernicus_download_motu(
-  username = "mmardones",
-  password = "Trekkero_1",
+  username = CopernicusMarine_uid,
+  password = CopernicusMarine_pwd,
   destination = dir1,
   product = "SST_GLO_SST_L4_REP_OBSERVATIONS_010_011" ,
   layer = "METOFFICE-GLO-SST-L4-REP-OBS-SST/analysed_sst", # "Mass concentration of chlorophyll a in sea water"
   variable = "Sea surface foundation temperature",
   output = "netcdf",
-  region = c(-85, -75, -30, -55), # vertices from giant petrel data
+  region = zona, # vertices from giant petrel data
   timerange = c("1993-01-01 12:00:00","2010-03-30 12:00:00"),
-  sub_variables = c("Global sst & sea ice analysis, l4 ostia, 0.05 deg daily (metoffice-glo-sst-l4-rep-obs-sst-v2)"),
+  sub_variables = "analysed_sst",
   verticalrange = c(0, 50)
 )
 ```
 
-
 ```{r}
-
-# chlorophyll-a cocnentration
+# sea ice
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
   destination = dir1,
-  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
-  layer = "global-analysis-forecast-bio-001-028-monthly",
-  variable = "Mass concentration of chloropyll a in sea water",
+  product = "GLOBAL_MULTIYEAR_PHY_001_030" ,
+  layer = "cmems_mod_glo_phy_my_0.083_P1M-m",
+  variable = "Sea ice",
   output = "netcdf",
-  region = c(-85, -75, -30, -55), # vertices from giant petrel data
-  timerange = c("2000-01-01 12:00:00","2023-03-30 12:00:00"),
-  sub_variables = c("chl"),
-  verticalrange = c(0, 100)
-)
-#temperature
-copernicus_download_motu(
-  username = CopernicusMarine_uid,
-  password = CopernicusMarine_pwd,
-  destination = dir1,
-  product = "GLOBAL_MULTIYEAR_BGC_001_029" ,
-  layer = "cmems_mod_glo_bgc_my_0.25_P1D-m/chl", # "Mass conc of chla in sea"
-  variable = "Plankton",
-  output = "netcdf",
-  region = c(-85, -75, -30, -55), # vertices from giant petrel data
-  timerange = c("1994-01-01 12:00:00","2020-03-30 12:00:00"),
-  sub_variables = c("chl"),
+  region = zona, # (xmin,ymin,xmax,ymax)
+  timerange = c("2005-01-01 12:00:00","2020-12-31 12:00:00"),
+  sub_variables = c("siconc"),
   verticalrange = c(0, 50)
-)
-
-### each file was downloaded as a nc with month as a dimension. 
-
-# loading and processing the data
-
-
-```
-```{r}
-copernicus_download_motu(
-  username = CopernicusMarine_uid,
-  password = CopernicusMarine_pwd,
-  destination = dir1,
-  product = "IBI_ANALYSISFORECAST_PHY_005_001",
-  layer = "cmems_mod_ibi_phy_anfc_0.027deg-3D_P1D-m",
-  variable = "thetao",
-  output = "netcdf",
-  region = c(-15.26, 35.57, 5.04, 51.03),
-  timerange = c("2022-08-01 12:00:00","2022-08-01 12:00:00"),
-  sub_variables = c("uo", "vo"),
-  verticalrange = c(0.49, 11.4)
 )
 ```
 
