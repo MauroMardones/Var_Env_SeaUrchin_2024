@@ -1,6 +1,6 @@
 ---
 title: "Download Guide Environmental Data to Sea Urchin"
-subtitle: "Suplemtary analysis to Stock Assessment Sea Urchin 2024"
+subtitle: "Suplementary analysis to Stock Assessment Sea Urchin 2024"
 author: "Mauricio Mardones"
 date:  "`r format(Sys.time(), '%d %B, %Y')`"
 bibliography: env_seaurchin.bib
@@ -53,13 +53,17 @@ CopernicusMarine_pwd = "Trekkero_1"
 ```
 
 Set dir data sink
+Data folder is
+```{r}
+dir1 <- here("Data")
+```
 
 Define geo-frame to get data
 
 We set limiit from X y XI region in Southern Chile
 
 ```{r echo=T, eval=T}
-zona <- c(-75,-72,-46,-41)
+zona <- c(-81,-58,-70,-28)
 ```
 Data available in the main repo from [Copernicus](https://data.marine.copernicus.eu/products)
 
@@ -69,10 +73,11 @@ The OSTIA [@Good2020] global sea surface temperature reprocessed product provide
 Then, select source data to analysis and put that name in the next line;
 
 
+One of the variables to be analyzed and correlated with the biological data of the southern sea urchin will be chlorophyll, since this resource is a nutrient filter from the water mass. While there isn't a direct relationship, it is a test that must be done.
 
 ```{r}
-list1<-copernicus_products_list(freeText = "GLOBAL_MULTIYEAR_BGC_001_029")  
-detail1<-copernicus_product_details("GLOBAL_MULTIYEAR_BGC_001_029")
+list1<-copernicus_products_list(freeText = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028")  
+detail1<-copernicus_product_details("GLOBAL_ANALYSIS_FORECAST_BIO_001_02")
 ```
 
 Details for selecting subvariables 
@@ -84,22 +89,23 @@ detail1$layers$`cmems_mod_glo_bgc_my_0.25_P1D-m/chl`$variableTitle
 
 ```
 
-
+Download `Mass concentration of chloropyll a in sea water`  data;
 
 ```{r eval=FALSE}
 # Set parameters to subset and run the download 
-library(CopernicusMarine)
 copernicus_download_motu(
   username = CopernicusMarine_uid,
   password = CopernicusMarine_pwd,
   destination = dir1,
-  product = "GLOBAL_MULTIYEAR_PHY_001_030",
-  layer = "cmems_mod_glo_phy_my_0.083_P1M-m",
-  variable = "thetao",
+  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
+  layer = "global-analysis-forecast-bio-001-028-monthly",
+  variable = "Mass concentration of chloropyll a in sea water",
   output = "netcdf",
-  region = c(-85, -75, -30, -55),
-  timerange = c("1993-01-16 12:00:00","1993-01-31 12:00:00"),
-  verticalrange = c(0, 50))
+  region  = zona,
+  timerange = c("2000-01-01 12:00:00","2023-03-30 12:00:00"),
+  sub_variables = c("chl"),
+  verticalrange = c(0, 100)
+)
 ```
 
 
@@ -119,7 +125,6 @@ copernicus_download_motu(
   verticalrange = c(0, 100)
 )
 ```
-
 \pagebreak
 # REFERENCES
 
