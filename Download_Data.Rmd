@@ -75,9 +75,56 @@ Then, select source data to analysis and put that name in the next line;
 
 One of the variables to be analyzed and correlated with the biological data of the southern sea urchin will be chlorophyll, since this resource is a nutrient filter from the water mass. While there isn't a direct relationship, it is a test that must be done.
 
+## Datos de clorofila
+
+
+1 .Clhorophila (1997-2022) Global Ocean Colour (Copernicus-GlobColour), Bio-Geo-Chemical, L4 (monthly and interpolated) from Satellite Observations 
+Overview
+
+The biogeochemical hindcast for global ocean is produced at Mercator-Ocean (Toulouse. France). It provides 3D biogeochemical fields for the time period 1993-2019 at 1/4 degree and on 75 vertical levels. It uses PISCES biogeochemical model (available on the NEMO modelling platform). No data assimilation in this product.
+
+Latest NEMO version (v3.6_STABLE)
+Forcings: GLORYS2V4-FREE ocean physics produced at Mercator-Ocean and ERA-Interim atmosphere produced at ECMWF at a daily frequency
+Outputs: Daily (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production) and monthly (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production. iron. phytoplankton in carbon) 3D mean fields interpolated on a standard regular grid in NetCDF format. The simulation is performed once and for all.
+Initial conditions: World Ocean Atlas 2013 for nitrate. phosphate. silicate and dissolved oxygen. GLODAPv2 for DIC and Alkalinity. and climatological model outputs for Iron and DOC
+Quality/Accuracy/Calibration information: See the related Quality Information Document
+DOI (product): https://doi.org/10.48670/moi-00019
+
+Full name: Global ocean biogeochemistry hindcast
+Product ID : GLOBAL_MULTIYEAR_BGC_001_029
+DOI:10.48670/moi-00019
+Source :Numerical models
+Spatial extent : Global OceanLat -90° to 90°Lon -180° to 180°
+Spatial resolution: 0.25° × 0.25°
+Temporal extent: 1 Jan 1993 to 31 Dec 2020
+Temporal resolution: Daily-Monthly
+Elevation (depth) levels: 75
+Processing level: Level 4
+Variables: 
+Cell thickness Mass concentration of chlorophyll a in sea water (CHL)
+Model level number at sea floorMole concentration of dissolved iron in sea water (FE)
+Mole concentration of dissolved molecular oxygen in sea water (O2)
+Mole concentration of nitrate in sea water (NO3)
+Mole concentration of phosphate in sea water (PO4)
+Mole concentration of phytoplankton expressed as carbon in sea water (PHYC)
+Mole concentration of silicate in sea water (SI)
+Net primary production of biomass expressed as carbon per unit volume in sea water (PP)
+Sea floor depth below geoidSea water ph reported on total scale (pH)
+Surface partial pressure of carbon dioxide in sea water (spCO2)
+Feature type: Grid
+Blue markets: Conservation & biodiversityClimate & adaptationPolicy & governanceScience & innovationMarine food
+Projection: ETRS89 (EPSG 4258)
+Data assimilation: None
+Update frequency: Weekly
+Format: NetCDF-4
+Originating centre: Mercator Océan International
+filename: cmems_mod.nc
+
+Primero inspeccionamos el archivo y sus atributos.
+
 ```{r}
 list1<-copernicus_products_list(freeText = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028")  
-detail1<-copernicus_product_details("GLOBAL_ANALYSIS_FORECAST_BIO_001_02")
+detail1<-copernicus_product_details("GLOBAL_ANALYSIS_FORECAST_BIO_001_028")
 ```
 
 Details for selecting subvariables 
@@ -108,19 +155,34 @@ copernicus_download_motu(
 )
 ```
 
+Primero inspeccionamos el archivo y sus atributos.
 
+```{r}
+list1<-copernicus_products_list(freeText = "GLOBAL_MULTIYEAR_BGC_001_029")  
+detail1<-copernicus_product_details("GLOBAL_MULTIYEAR_BGC_001_029")
+```
+
+Details for selecting subvariables 
+
+```{r}
+list1$mainVariables
+list1$numLayers
+detail1$layers$`cmems_mod_glo_bgc_my_0.25_P1D-m/chl`$subsetVariableIds
+
+```
+Bajo los datos de clorifila de todo chile desde el 2010 al 2022
 
 ```{r eval=FALSE}
 copernicus_download_motu(
-  username = CopernicusMarine_uid,
-  password = CopernicusMarine_pwd,
-  destination = dir1,
-  product = "GLOBAL_ANALYSIS_FORECAST_BIO_001_028" ,
-  layer = "global-analysis-forecast-bio-001-028-monthly",
+  username = "mmardones",
+  password = "Trekkero_1",
+  destination = "~",
+  product = "GLOBAL_MULTIYEAR_BGC_001_029" ,
+  layer = "cmems_mod_glo_bgc_my_0.25_P1D-m",
   variable = "Mass concentration of chloropyll a in sea water",
   output = "netcdf",
-  region = zona,
-  timerange = c("2010-01-01 12:00:00","2023-03-30 12:00:00"),
+  region = c(-81,-58,-70,-28),
+  timerange = c("2010-01-01 12:00:00","2022-03-30 12:00:00"),
   sub_variables = c("chl"),
   verticalrange = c(0, 100)
 )

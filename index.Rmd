@@ -55,9 +55,11 @@ library(sf)
 library(leaflet)
 library(lubridate)
 library(rasterVis)
-library(ggplot2)
+library(tidyverse)
 library(rnaturalearth)
 library(rnaturalearthdata)
+library(data.table)
+library(marmap)
 ```
 
 @natural2023; @ncdf42021; @raster2022; @lubridate2011
@@ -72,7 +74,52 @@ multi_dotplot <- function(filename, Xvar, Yvar){
     coord_flip() +
     labs(x = "Order of Data")}
 ```
+## Datos de clorofila
 
+
+1 .Clhorophila (1997-2022) Global Ocean Colour (Copernicus-GlobColour), Bio-Geo-Chemical, L4 (monthly and interpolated) from Satellite Observations 
+Overview
+
+The biogeochemical hindcast for global ocean is produced at Mercator-Ocean (Toulouse. France). It provides 3D biogeochemical fields for the time period 1993-2019 at 1/4 degree and on 75 vertical levels. It uses PISCES biogeochemical model (available on the NEMO modelling platform). No data assimilation in this product.
+
+Latest NEMO version (v3.6_STABLE)
+Forcings: GLORYS2V4-FREE ocean physics produced at Mercator-Ocean and ERA-Interim atmosphere produced at ECMWF at a daily frequency
+Outputs: Daily (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production) and monthly (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production. iron. phytoplankton in carbon) 3D mean fields interpolated on a standard regular grid in NetCDF format. The simulation is performed once and for all.
+Initial conditions: World Ocean Atlas 2013 for nitrate. phosphate. silicate and dissolved oxygen. GLODAPv2 for DIC and Alkalinity. and climatological model outputs for Iron and DOC
+Quality/Accuracy/Calibration information: See the related Quality Information Document
+DOI (product): https://doi.org/10.48670/moi-00019
+
+Full name: Global ocean biogeochemistry hindcast
+Product ID : GLOBAL_MULTIYEAR_BGC_001_029
+DOI:10.48670/moi-00019
+Source :Numerical models
+Spatial extent : Global OceanLat -90° to 90°Lon -180° to 180°
+Spatial resolution: 0.25° × 0.25°
+Temporal extent: 1 Jan 1993 to 31 Dec 2020
+Temporal resolution: Daily-Monthly
+Elevation (depth) levels: 75
+Processing level: Level 4
+Variables: 
+Cell thickness Mass concentration of chlorophyll a in sea water (CHL)
+Model level number at sea floorMole concentration of dissolved iron in sea water (FE)
+Mole concentration of dissolved molecular oxygen in sea water (O2)
+Mole concentration of nitrate in sea water (NO3)
+Mole concentration of phosphate in sea water (PO4)
+Mole concentration of phytoplankton expressed as carbon in sea water (PHYC)
+Mole concentration of silicate in sea water (SI)
+Net primary production of biomass expressed as carbon per unit volume in sea water (PP)
+Sea floor depth below geoidSea water ph reported on total scale (pH)
+Surface partial pressure of carbon dioxide in sea water (spCO2)
+Feature type: Grid
+Blue markets: Conservation & biodiversityClimate & adaptationPolicy & governanceScience & innovationMarine food
+Projection: ETRS89 (EPSG 4258)
+Data assimilation: None
+Update frequency: Weekly
+Format: NetCDF-4
+Originating centre: Mercator Océan International
+filename: cmems_mod.nc
+
+Primero inspeccionamos el archivo y sus atributos.
 
 ```{r}
 ncfile <- "Data/global-analysis-forecast-bio-001-028-monthly_1693389410225.nc"
@@ -82,6 +129,14 @@ nc <- nc_open(ncfile)
 
 # Print information about the NetCDF file
 print(nc)
+
+# Obtener una lista de las variables en el archivo
+attributes(nc$var)
+attributes(nc$dim)
+# Obtener la variable temporal
+#unique(month)
+
+
 ```
 
 
@@ -156,6 +211,220 @@ ggplot()+
   # theme
   theme_bw() 
 ```
+## Datos de clorofila
+
+
+1 .Clhorophila (1997-2022) Global Ocean Colour (Copernicus-GlobColour), Bio-Geo-Chemical, L4 (monthly and interpolated) from Satellite Observations 
+Overview
+
+The biogeochemical hindcast for global ocean is produced at Mercator-Ocean (Toulouse. France). It provides 3D biogeochemical fields for the time period 1993-2019 at 1/4 degree and on 75 vertical levels. It uses PISCES biogeochemical model (available on the NEMO modelling platform). No data assimilation in this product.
+
+Latest NEMO version (v3.6_STABLE)
+Forcings: GLORYS2V4-FREE ocean physics produced at Mercator-Ocean and ERA-Interim atmosphere produced at ECMWF at a daily frequency
+Outputs: Daily (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production) and monthly (chlorophyll. nitrate. phosphate. silicate. dissolved oxygen. primary production. iron. phytoplankton in carbon) 3D mean fields interpolated on a standard regular grid in NetCDF format. The simulation is performed once and for all.
+Initial conditions: World Ocean Atlas 2013 for nitrate. phosphate. silicate and dissolved oxygen. GLODAPv2 for DIC and Alkalinity. and climatological model outputs for Iron and DOC
+Quality/Accuracy/Calibration information: See the related Quality Information Document
+DOI (product): https://doi.org/10.48670/moi-00019
+
+Full name: Global ocean biogeochemistry hindcast
+Product ID : GLOBAL_MULTIYEAR_BGC_001_029
+DOI:10.48670/moi-00019
+Source :Numerical models
+Spatial extent : Global OceanLat -90° to 90°Lon -180° to 180°
+Spatial resolution: 0.25° × 0.25°
+Temporal extent: 1 Jan 1993 to 31 Dec 2020
+Temporal resolution: Daily-Monthly
+Elevation (depth) levels: 75
+Processing level: Level 4
+Variables: 
+Cell thickness Mass concentration of chlorophyll a in sea water (CHL)
+Model level number at sea floorMole concentration of dissolved iron in sea water (FE)
+Mole concentration of dissolved molecular oxygen in sea water (O2)
+Mole concentration of nitrate in sea water (NO3)
+Mole concentration of phosphate in sea water (PO4)
+Mole concentration of phytoplankton expressed as carbon in sea water (PHYC)
+Mole concentration of silicate in sea water (SI)
+Net primary production of biomass expressed as carbon per unit volume in sea water (PP)
+Sea floor depth below geoidSea water ph reported on total scale (pH)
+Surface partial pressure of carbon dioxide in sea water (spCO2)
+Feature type: Grid
+Blue markets: Conservation & biodiversityClimate & adaptationPolicy & governanceScience & innovationMarine food
+Projection: ETRS89 (EPSG 4258)
+Data assimilation: None
+Update frequency: Weekly
+Format: NetCDF-4
+Originating centre: Mercator Océan International
+filename: cmems_mod.nc
+
+
+Ahora transformar los datos a `data.frame`
+
+```{r  data chl2}
+# Abrir el archivo .nc
+raster_nc <- brick("Data/cmems_obs-oc_glo_bgc-plankton_my_l4-multi-4km_P1M_1693477867605.nc", varname = "CHL")
+# Obtener la variable temporal
+dates <- getZ(raster_nc)
+years <-  as.integer(format(as.Date(dates), "%Y"))
+month <-  as.integer(format(as.Date(dates), "%m"))
+unique(years)
+
+chla <- stackApply(raster_nc, years, fun=mean)
+class(chla)
+
+extension <- extent(chla)
+proyeccion <- crs(chla)
+
+
+# ahora extraigo los valores por cada punto 
+stack_zona_chl <- raster::as.data.frame(chla, xy = TRUE)
+stack_zona_chl <- na.omit(stack_zona_chl)
+#str(stack_zona_chl)
+```
+
+Saco un plot del comportamiento de la variable en todos los años
+```{r plot chla1}
+spplot(chla, 
+       colorkey = list(space = "bottom"), 
+       scales = list(draw = TRUE),
+      main = "Chorophyla a",
+      fill='white',
+      names.attr=c("2000",  "2001",  "2002",  "2003", 
+                      "2004", "2005", "2006", "2007", "2008", "2009",
+                      "2010","2011", "2012", "2013", "2014", "2015", 
+                      "2016", "2017" , "2018",  "2019", "2020",
+                   "2021", "2022"))
+
+```
+
+Ahora debo manipuñar la data para dejar formato largo table y luego extraer la serie de tiempo.
+
+
+```{r manidat}
+# Primero cambio nombre de las columnas
+colnames(stack_zona_chl) <- c("lon", "lat",
+                      "2000",  "2001",  "2002",  "2003", 
+                      "2004", "2005", "2006", "2007", "2008", "2009",
+                      "2010","2011", "2012", "2013", "2014", "2015", 
+                      "2016", "2017" , "2018",  "2019", "2020",
+                   "2021", "2022")
+# ahora pivoteo los datos a lo largo
+datchl <- stack_zona_chl %>%
+  pivot_longer(cols = c( "2000",  "2001",  "2002",  "2003", 
+                      "2004", "2005", "2006", "2007", "2008", "2009",
+                      "2010","2011", "2012", "2013", "2014", "2015", 
+                      "2016", "2017" , "2018",  "2019", "2020",
+                   "2021", "2022"), 
+               names_to = "ANO", values_to = "CHLa")
+```
+
+Compruebo la tendencia general de los datos a traves de la media de clorofila
+```{r manidatchl}
+daa=datchl %>% 
+               group_by(lon,  lat) %>% 
+               summarize(mean_var=mean(CHLa))
+
+# un grafico simple
+aschl <- ggplot(daa,
+                aes(y=mean_var, 
+                    x=as.double(ANO))) +
+  geom_point(color="#386641")+
+  stat_smooth(method = "loess",
+              span = 0.3,
+              col="#386641")+
+  theme_light()+
+  xlab("")
+mchl1 <- ggplot() +
+  geom_histogram(data = datchl, 
+                 aes(CHLa),
+                 bins = 100)+
+  theme_bw()
+ggarrange(mchl1,aschl)
+```
+Hago un mapa con los shapes nuevos
+
+```{r}
+chi <- raster::getData("GADM", country = "CHL", level = 0)
+chi@data
+#
+e <- extent(-77,-72,-46,-41)
+#e2 <- extent(-70,-35,-68,-60)
+rc <- crop(chi, e)
+proj4string(rc) <- CRS("+init=epsg:4326")
+rc3 <- st_as_sf(rc) # par dejarlo en formato geom_sf
+
+# Saco bathymetria
+bat <- getNOAA.bathy(-77,-72,-46,-41, res = 1)
+```
+
+
+Preparo la grilla para los diversos indicadores.
+
+```{r}
+Grid2<- rc3 %>% #rc3 es el plot base original linea 487
+  sf::st_make_grid(cellsize = c(0.2,0.125)) %>% 
+  sf::st_cast("MULTIPOLYGON") %>%
+  sf::st_sf() %>% # objeto en spatial feature
+  dplyr::mutate(cellid = row_number()) 
+
+# la pruebo
+
+ggplot() +
+  geom_contour(data = bat,
+               aes(x=x, y=y, z=z),
+               breaks=c(0, -10, -20, -50, -100, -200, -1000),
+               linewidth=0.2,
+               colour="grey")+
+  geom_sf(data = df3, 
+          color="grey",  
+          fill=NA, 
+          size=0.3) +
+  geom_sf(data = rc3,  fill=NA)+
+  theme_minimal()
+
+```
+
+
+```{r}
+#transformar los datos en un sf object. Aqui ojo por q no cambié el nombre de las tallas =LONGITUD
+
+df3 <- st_as_sf(datchl, coords = c(1, 2),  
+                  crs = 4326) 
+
+# join data to grid; make sure to join points to grid
+# the first object drives the output geometry
+result4 <- rc3 %>%
+  st_intersection(df3) %>% 
+  group_by(cellid, ANO) %>% 
+  summarise(meanchl = mean(CHla))%>% 
+  filter(! is.na(meanchl))
+```
+
+```{r }
+cp1 <- ggplot() +
+  #geom_sf(data = polimo, color="red",  fill=NA)+
+  geom_contour(data = bat,
+               aes(x=x, y=y, z=z),
+               breaks=c(0, -10, -20, -50, -100, -200, -1000),
+               linewidth=0.2,
+               colour="grey")+
+  geom_sf(data=result4, 
+          aes(fill = cut(meanchla,
+                         breaks = seq(0, 3, by = 50))),
+          color=NA) +
+  scale_fill_brewer(labels =  seq(0, 500, by = 50), # if you must
+                    palette = "Purples",
+                    name = "CPUE erizo") +
+  geom_sf(data = rc3, color="black", 
+          fill="white")+
+  theme_bw()+
+  #facet_wrap(.~ANO_ARR, ncol = 3)+
+  coord_sf(crs = 4326)+
+  labs(x = "Longitude", y = "Latitude")+
+  ylim(-45.7, -41.3)+
+  xlim(-75.2, -72.6)
+cp1
+```
+
 
 
 # REFERENCIAS
