@@ -287,7 +287,6 @@ spplot(chla,
        colorkey = list(space = "bottom"), 
        scales = list(draw = TRUE),
       main = "Chorophyla a",
-      fill='white',
       names.attr=c("2000",  "2001",  "2002",  "2003", 
                       "2004", "2005", "2006", "2007", "2008", "2009",
                       "2010","2011", "2012", "2013", "2014", "2015", 
@@ -315,12 +314,16 @@ datchl <- stack_zona_chl %>%
                       "2016", "2017" , "2018",  "2019", "2020",
                    "2021", "2022"), 
                names_to = "ANO", values_to = "CHLa")
+
+datchl_fil <- datchl %>% 
+  filter(lat>-41,
+         CHLa<3) 
 ```
 
 Compruebo la tendencia general de los datos a traves de la media de clorofila
 ```{r manidatchl}
-daa=datchl %>% 
-               group_by(lon,  lat) %>% 
+daa=datchl_fil %>% 
+               group_by(ANO) %>% 
                summarize(mean_var=mean(CHLa))
 
 # un grafico simple
@@ -331,10 +334,12 @@ aschl <- ggplot(daa,
   stat_smooth(method = "loess",
               span = 0.3,
               col="#386641")+
-  theme_light()+
+  scale_x_continuous(breaks = seq(from = 1996, to = 2022, by = 2))+
+  theme_bw()+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
   xlab("")
 mchl1 <- ggplot() +
-  geom_histogram(data = datchl, 
+  geom_histogram(data = datchl_fil, 
                  aes(CHLa),
                  bins = 100)+
   theme_bw()
@@ -360,44 +365,31 @@ bat <- getNOAA.bathy(-77,-72,-46,-41, res = 1)
 Preparo la grilla para los diversos indicadores.
 
 ```{r}
-Grid2<- rc3 %>% #rc3 es el plot base original linea 487
-  sf::st_make_grid(cellsize = c(0.2,0.125)) %>% 
+
+Grid2<- rc3 %>% #pm481 es el plot base original linea 481
+  sf::st_make_grid(cellsize = c(0.2,0.125)) %>% # para que quede cuadrada
   sf::st_cast("MULTIPOLYGON") %>%
-  sf::st_sf() %>% # objeto en spatial feature
+  sf::st_sf()  %>%  # objeto en spatial feature
   dplyr::mutate(cellid = row_number()) 
-
-# la pruebo
-
-ggplot() +
-  geom_contour(data = bat,
-               aes(x=x, y=y, z=z),
-               breaks=c(0, -10, -20, -50, -100, -200, -1000),
-               linewidth=0.2,
-               colour="grey")+
-  geom_sf(data = df3, 
-          color="grey",  
-          fill=NA, 
-          size=0.3) +
-  geom_sf(data = rc3,  fill=NA)+
-  theme_minimal()
-
 ```
 
 
 ```{r}
 #transformar los datos en un sf object. Aqui ojo por q no cambié el nombre de las tallas =LONGITUD
 
-df3 <- st_as_sf(datchl, coords = c(1, 2),  
+df3 <- st_as_sf(datchl_fil, coords = c(1, 2),  
                   crs = 4326) 
 
 # join data to grid; make sure to join points to grid
 # the first object drives the output geometry
-result4 <- rc3 %>%
-  st_intersection(df3) %>% 
+result4 <- Grid2 %>%
+  st_join(df3) %>% 
   group_by(cellid, ANO) %>% 
-  summarise(meanchl = mean(CHla))%>% 
+  summarise(meanchl = mean(CHLa))%>% 
   filter(! is.na(meanchl))
 ```
+
+
 
 ```{r }
 cp1 <- ggplot() +
@@ -408,8 +400,8 @@ cp1 <- ggplot() +
                linewidth=0.2,
                colour="grey")+
   geom_sf(data=result4, 
-          aes(fill = cut(meanchla,
-                         breaks = seq(0, 3, by = 50))),
+          aes(fill = cut(meanchl,
+                         breaks = seq(0, 3, by = 0.1))),
           color=NA) +
   scale_fill_brewer(labels =  seq(0, 500, by = 50), # if you must
                     palette = "Purples",
@@ -417,7 +409,7 @@ cp1 <- ggplot() +
   geom_sf(data = rc3, color="black", 
           fill="white")+
   theme_bw()+
-  #facet_wrap(.~ANO_ARR, ncol = 3)+
+  facet_wrap(.~ANO, ncol = 10)+
   coord_sf(crs = 4326)+
   labs(x = "Longitude", y = "Latitude")+
   ylim(-45.7, -41.3)+
