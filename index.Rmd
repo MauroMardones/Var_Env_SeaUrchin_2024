@@ -355,7 +355,7 @@ e <- extent(-77,-72,-46,-41)
 #e2 <- extent(-70,-35,-68,-60)
 rc <- crop(chi, e)
 proj4string(rc) <- CRS("+init=epsg:4326")
-rc3 <- st_as_sf(rc) # par dejarlo en formato geom_sf
+rc4 <- st_as_sf(rc) # par dejarlo en formato geom_sf
 
 # Saco bathymetria
 bat <- getNOAA.bathy(-77,-72,-46,-41, res = 1)
@@ -366,7 +366,7 @@ Preparo la grilla para los diversos indicadores.
 
 ```{r}
 
-Grid2<- rc3 %>% #pm481 es el plot base original linea 481
+Grid<- rc4 %>% #pm481 es el plot base original linea 481
   sf::st_make_grid(cellsize = c(0.2,0.125)) %>% # para que quede cuadrada
   sf::st_cast("MULTIPOLYGON") %>%
   sf::st_sf()  %>%  # objeto en spatial feature
@@ -376,14 +376,14 @@ Grid2<- rc3 %>% #pm481 es el plot base original linea 481
 
 ```{r}
 #transformar los datos en un sf object. Aqui ojo por q no cambié el nombre de las tallas =LONGITUD
-
-df3 <- st_as_sf(datchl_fil, coords = c(1, 2),  
+df5 <- st_as_sf(datchl_fil, coords = c(1, 2),  
                   crs = 4326) 
+df5$ANO <- as.numeric(as.character(df5$ANO))
 
 # join data to grid; make sure to join points to grid
 # the first object drives the output geometry
-result4 <- Grid2 %>%
-  st_join(df3) %>% 
+result <- Grid %>%
+  st_join(df5) %>% 
   group_by(cellid, ANO) %>% 
   summarise(meanchl = mean(CHLa))%>% 
   filter(! is.na(meanchl))
@@ -399,7 +399,7 @@ cp1 <- ggplot() +
                breaks=c(0, -10, -20, -50, -100, -200, -1000),
                linewidth=0.2,
                colour="grey")+
-  geom_sf(data=result4, 
+  geom_sf(data=result, 
           aes(fill = cut(meanchl,
                          breaks = seq(0, 3, by = 0.1))),
           color=NA) +
